@@ -11,6 +11,7 @@ import le2lejosev3.pblocks.BrickButtons;
 import le2lejosev3.pblocks.ColorSensor;
 import le2lejosev3.pblocks.LargeMotor;
 import le2lejosev3.pblocks.MediumMotor;
+import le2lejosev3.pblocks.Parallel;
 import le2lejosev3.pblocks.Sound;
 import le2lejosev3.pblocks.Timer;
 import le2lejosev3.pblocks.TouchSensor;
@@ -87,7 +88,7 @@ public class Elephant {
 					cf++;
 					// wait until brick button UP (4) is released
 					while (Button.ESCAPE.isUp()) {
-						if (BrickButtons.measure() == BrickButtons.BB_NONE) {
+						if (BrickButtons.measure() != BrickButtons.BB_UP) {
 							break;
 						}
 					}
@@ -104,7 +105,7 @@ public class Elephant {
 					cf--;
 					// wait until brick button DOWN (5) is released
 					while (Button.ESCAPE.isUp()) {
-						if (BrickButtons.measure() == BrickButtons.BB_NONE) {
+						if (BrickButtons.measure() != BrickButtons.BB_DOWN) {
 							break;
 						}
 					}
@@ -172,21 +173,8 @@ public class Elephant {
 		// Large motor B on with Power 70 for 500 degrees and brake at end
 		motB.motorOnForDegrees(70, 500, true);
 
-		// run in parallel:
-		// Large motor grab thread
-		Thread lmth = new GrabLargeMotorThread();
-		// Medium motor grab thread
-		Thread mmth = new GrabMediumMotorThread();
-		// start both threads
-		lmth.start();
-		mmth.start();
-		// wait until both threads are done
-		try {
-			lmth.join();
-			mmth.join();
-		} catch (InterruptedException e) {
-			// ignore
-		}
+		// run in parallel: Grab LargeMotor Thread and Grab MediumMotor Thread
+		Parallel.run(new GrabLargeMotorThread(), new GrabMediumMotorThread());
 		log.info("end");
 	}
 
@@ -270,21 +258,8 @@ public class Elephant {
 		// wait 1 second
 		Wait.time(1F);
 
-		// run in parallel:
-		// Large motor reset thread
-		Thread lmth = new ResetLargeMotorThread();
-		// Medium motor reset thread
-		Thread mmth = new ResetMediumMotorThread();
-		// start both threads
-		lmth.start();
-		mmth.start();
-		// wait until both threads are done
-		try {
-			lmth.join();
-			mmth.join();
-		} catch (InterruptedException e) {
-			// ignore
-		}
+		// run in parallel: LargeMotor reset thread and MediumMotor reset thread
+		Parallel.run(new ResetLargeMotorThread(), new ResetMediumMotorThread());
 		log.info("end");
 	}
 
